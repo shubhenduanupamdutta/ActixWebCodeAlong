@@ -1,4 +1,6 @@
 use actix_web::{App, HttpServer, Responder, get, middleware::Logger, web};
+mod routes;
+mod utils;
 
 #[get("/hello/{name}")]
 async fn greet(name: web::Path<String>) -> impl Responder {
@@ -7,7 +9,6 @@ async fn greet(name: web::Path<String>) -> impl Responder {
 
 #[actix_web::main] // or #[tokio::main]
 async fn main() -> std::io::Result<()> {
-
     // Initializing dotenv (RUST_LOG=info, set in environment)
     dotenv::dotenv().ok();
 
