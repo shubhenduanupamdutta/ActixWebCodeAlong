@@ -20,3 +20,10 @@ This will create migration with default post table.
 ```bash
 sea-orm-cli migrate up
 ```
+
+## Sea-ORM Entity Generation
+
+If `DATABASE_URL` is defined in .env file. Then you can auto generate entities using
+```bash
+sea-orm-cli generate entity -o entity/src
+```
