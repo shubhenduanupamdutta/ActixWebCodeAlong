@@ -15,9 +15,13 @@ async fn main() -> std::io::Result<()> {
     // Initializing env_logger
     env_logger::init();
 
+    // Getting address and port from env file using OnceLock
+    let address = utils::constants::get_address().clone();
+    let port = utils::constants::get_port().clone();
+
     // Adding logger middleware using `wrap`
     HttpServer::new(|| App::new().wrap(Logger::default()).service(greet))
-        .bind(("127.0.0.1", 8080))?
+        .bind((address, port))?
         .run()
         .await
 }
