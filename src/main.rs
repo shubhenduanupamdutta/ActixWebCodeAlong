@@ -1,11 +1,6 @@
-use actix_web::{App, HttpServer, Responder, get, middleware::Logger, web};
+use actix_web::{App, HttpServer, middleware::Logger};
 mod routes;
 mod utils;
-
-#[get("/hello/{name}")]
-async fn greet(name: web::Path<String>) -> impl Responder {
-    format!("Hello {name}!")
-}
 
 #[actix_web::main] // or #[tokio::main]
 async fn main() -> std::io::Result<()> {
@@ -17,11 +12,15 @@ async fn main() -> std::io::Result<()> {
 
     // Getting address and port from env file using OnceLock
     let address = utils::constants::get_address().clone();
-    let port = utils::constants::get_port().clone();
+    let port = *utils::constants::get_port();
 
     // Adding logger middleware using `wrap`
-    HttpServer::new(|| App::new().wrap(Logger::default()).service(greet))
-        .bind((address, port))?
-        .run()
-        .await
+    HttpServer::new(|| {
+        App::new()
+            .wrap(Logger::default())
+            .configure(routes::home_routes::config)
+    })
+    .bind((address, port))?
+    .run()
+    .await
 }
