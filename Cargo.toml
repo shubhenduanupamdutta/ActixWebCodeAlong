@@ -5,6 +5,24 @@ edition = "2024"
 rust-version = "1.87"
 
 [dependencies]
+entity = { path = "entity" }
+migration = { path = "migration" } # depends on your needs
+actix-web = { workspace = true }
+dotenv = { workspace = true }
+env_logger = { workspace = true }
+sea-orm = { workspace = true, features = [
+    "sqlx-postgres",
+    "runtime-tokio-rustls",
+    "macros",
+] }
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+[workspace]
+resolver = "3"
+members = [".", "entity", "migration"]
+
+[workspace.dependencies]
 actix-web = "4.11.0"
 dotenv = "0.15.0"
 env_logger = "0.11.8"
@@ -15,8 +33,14 @@ sea-orm = { version = "1.1.11", features = [
 ] }
 serde = "1.0.219"
 serde_json = "1.0.140"
+async-std = { version = "1", features = ["attributes", "tokio1"] }
+sea-orm-migration = { version = "1.1.11", features = [
+    "runtime-tokio-rustls",
+    "sqlx-postgres",
+] }
 
-[lints.clippy]
+
+[workspace.lints.clippy]
 all = "deny"
 
 [profile.dev]
