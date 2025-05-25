@@ -4,3 +4,8 @@ use actix_web::{Responder, get, web};
 pub async fn greet(name: web::Path<String>) -> impl Responder {
     format!("Hello {name}!")
 }
+
+#[get("/test")]
+pub async fn test() -> impl Responder {
+    "Test call".to_string()
+}
