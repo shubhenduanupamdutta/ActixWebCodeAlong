@@ -1,0 +1,10 @@
+[package]
+name = "actix-youtube"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+actix-web = "4.11.0"
+
+[lints.clippy]
+all="deny"
