@@ -8,11 +8,16 @@ rust-version = "1.87"
 actix-web = "4.11.0"
 dotenv = "0.15.0"
 env_logger = "0.11.8"
+sea-orm = { version = "1.1.11", features = [
+    "sqlx-postgres",
+    "runtime-tokio-rustls",
+    "macros",
+] }
 serde = "1.0.219"
 serde_json = "1.0.140"
 
 [lints.clippy]
-all="deny"
+all = "deny"
 
 [profile.dev]
 debug = true
