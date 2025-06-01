@@ -18,8 +18,9 @@ sea-orm = { workspace = true, features = [
 serde = { workspace = true }
 serde_json = { workspace = true }
 sha256 = { workspace = true }
-chrono = {workspace = true}
-jsonwebtoken = {workspace = true}
+chrono = { workspace = true }
+jsonwebtoken.workspace = true
+argon2 = { workspace = true }
 
 [workspace]
 resolver = "3"
@@ -44,6 +45,7 @@ sea-orm-migration = { version = "1.1.12", features = [
 sha256 = "1.6.0"
 chrono = "0.4.41"
 jsonwebtoken = "9.3.1"
+argon2 = "0.5.3"
 
 
 [workspace.lints.clippy]
