@@ -7,7 +7,7 @@ use argon2::{
     password_hash::{PasswordHash, PasswordHasher, PasswordVerifier, SaltString, rand_core::OsRng},
 };
 
-use crate::utils::{api_response, app_state};
+use crate::utils::{api_response, app_state, jwt::encode_jwt};
 
 #[derive(Serialize, Deserialize)]
 struct RegisterModel {
@@ -59,10 +59,14 @@ pub async fn login(
     }
 
     let user = user.unwrap();
-    match verify_hash(login_json.password.clone(), user.password) {
-        false => api_response::ApiResponse::new(401, "Wrong Password".to_string()),
-        true => api_response::ApiResponse::new(200, user.name),
+
+    if !verify_hash(login_json.password.clone(), &user.password) {
+        return api_response::ApiResponse::new(401, "Unauthorized. Wrong Password.".to_string());
     }
+
+    let jwt = encode_jwt(user.email, user.id).unwrap();
+
+    api_response::ApiResponse::new(200, format!("{{ 'token': '{}'}}", jwt))
 }
 
 /// Securely hash the text using Argon2 default methods and return the PHC String of the new hash
@@ -77,8 +81,8 @@ pub(crate) fn secure_hash(text: String) -> String {
 }
 
 /// Verify the text corresponds to the hash. If it corresponds then return `true` otherwise `false`
-pub(crate) fn verify_hash(text: String, hash: String) -> bool {
-    let parsed_hash = match PasswordHash::new(&hash) {
+pub(crate) fn verify_hash(text: String, hash: &str) -> bool {
+    let parsed_hash = match PasswordHash::new(hash) {
         Ok(hash) => hash,
         Err(_) => return false,
     };

@@ -15,3 +15,8 @@ pub fn db_url() -> &'static String {
     static DATABASE_URL: OnceLock<String> = OnceLock::new();
     DATABASE_URL.get_or_init(|| env::var("DATABASE_URL").unwrap())
 }
+
+pub fn get_secret() -> &'static String {
+    static SECRET: OnceLock<String> = OnceLock::new();
+    SECRET.get_or_init(|| env::var("SECRET").unwrap())
+}
