@@ -1,8 +1,10 @@
 //! Proper response structure
 
-use actix_web::{HttpResponse, Responder, body::BoxBody, http::StatusCode, web};
+use std::fmt::Display;
 
-#[allow(dead_code)]
+use actix_web::{HttpResponse, Responder, ResponseError, body::BoxBody, http::StatusCode, web};
+
+#[derive(Debug)]
 pub struct ApiResponse {
     pub status_code: u16,
     pub body: String,
@@ -19,6 +21,16 @@ impl ApiResponse {
     }
 }
 
+impl Display for ApiResponse {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "Error: {}, \nStatus Code: {}",
+            self.body, self.status_code
+        )
+    }
+}
+
 #[allow(unused_variables)]
 impl Responder for ApiResponse {
     type Body = BoxBody;
@@ -26,5 +38,16 @@ impl Responder for ApiResponse {
     fn respond_to(self, req: &actix_web::HttpRequest) -> actix_web::HttpResponse<Self::Body> {
         let body = BoxBody::new(web::BytesMut::from(self.body.as_bytes()));
         HttpResponse::new(self.response_code).set_body(body)
+    }
+}
+
+impl ResponseError for ApiResponse {
+    fn status_code(&self) -> StatusCode {
+        self.response_code
+    }
+
+    fn error_response(&self) -> HttpResponse<BoxBody> {
+        let body = BoxBody::new(web::BytesMut::from(self.body.as_bytes()));
+        HttpResponse::new(self.status_code()).set_body(body)
     }
 }
