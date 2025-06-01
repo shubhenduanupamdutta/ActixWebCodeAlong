@@ -190,13 +190,16 @@ name = "actix-youtube"
 version = "0.1.0"
 dependencies = [
  "actix-web",
+ "chrono",
  "dotenv",
  "entity",
  "env_logger",
+ "jsonwebtoken",
  "migration",
  "sea-orm",
  "serde",
  "serde_json",
+ "sha256",
 ]
 
 [[package]]
@@ -720,8 +723,10 @@ checksum = "c469d952047f47f91b68d1cba3f10d63c11d73e4636f24f08daf0278abf01c4d"
 dependencies = [
  "android-tzdata",
  "iana-time-zone",
+ "js-sys",
  "num-traits",
  "serde",
+ "wasm-bindgen",
  "windows-link",
 ]
 
@@ -1245,8 +1250,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "335ff9f135e4384c8150d6f27c6daed433577f86b4750418338c01a1a2528592"
 dependencies = [
  "cfg-if",
+ "js-sys",
  "libc",
  "wasi 0.11.0+wasi-snapshot-preview1",
+ "wasm-bindgen",
 ]
 
 [[package]]
@@ -1628,6 +1635,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "jsonwebtoken"
+version = "9.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5a87cc7a48537badeae96744432de36f4be2b4a34a05a5ef32e9dd8a1c169dde"
+dependencies = [
+ "base64",
+ "js-sys",
+ "pem",
+ "ring",
+ "serde",
+ "serde_json",
+ "simple_asn1",
+]
+
+[[package]]
 name = "kv-log-macro"
 version = "1.0.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1925,6 +1947,16 @@ dependencies = [
  "redox_syscall",
  "smallvec",
  "windows-targets 0.52.6",
+]
+
+[[package]]
+name = "pem"
+version = "3.0.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "38af38e8470ac9dee3ce1bae1af9c1671fffc44ddfd8bd1d0a3445bf349a8ef3"
+dependencies = [
+ "base64",
+ "serde",
 ]
 
 [[package]]
@@ -2441,9 +2473,9 @@ dependencies = [
 
 [[package]]
 name = "sea-orm"
-version = "1.1.11"
+version = "1.1.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f7cf58b28bcf1e053539c38afbb60d963ac8e1db87f6109db7b0eff4cbeaefb3"
+checksum = "18b7272b88bd608cd846de24f41b74a0315a135fe761b0aed4ec1ce6a6327a93"
 dependencies = [
  "async-stream",
  "async-trait",
@@ -2470,9 +2502,9 @@ dependencies = [
 
 [[package]]
 name = "sea-orm-cli"
-version = "1.1.11"
+version = "1.1.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0885ce200adaa527c696f6114f1a014c74801fa9c62a2b1bccfdec9af381108c"
+checksum = "4a4961b0d9098a9dc992d6e75fb761f9e5c442bb46746eeffa08e47b53759fce"
 dependencies = [
  "chrono",
  "clap",
@@ -2480,6 +2512,7 @@ dependencies = [
  "glob",
  "regex",
  "sea-schema",
+ "sqlx",
  "tracing",
  "tracing-subscriber",
  "url",
@@ -2487,9 +2520,9 @@ dependencies = [
 
 [[package]]
 name = "sea-orm-macros"
-version = "1.1.11"
+version = "1.1.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cac37512fde1f5b9ef71ec773cfabb90ad3b68c27e53131ff38763c247fcbb2d"
+checksum = "2c38255a6b2e6d1ae2d5df35696507a345f03c036ae32caeb0a3b922dbab610d"
 dependencies = [
  "heck 0.5.0",
  "proc-macro2",
@@ -2501,9 +2534,9 @@ dependencies = [
 
 [[package]]
 name = "sea-orm-migration"
-version = "1.1.11"
+version = "1.1.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "13f81e0ae079274b7eaa7b0234ae57b4a4f51619f53f3996d47580b378e0b26b"
+checksum = "82f58c3b1dcf6c137f08394f0228f9baf1574a2a799e93dc5da3cd9228bef9c5"
 dependencies = [
  "async-trait",
  "clap",
@@ -2570,7 +2603,9 @@ checksum = "2239ff574c04858ca77485f112afea1a15e53135d3097d0c86509cef1def1338"
 dependencies = [
  "futures",
  "sea-query",
+ "sea-query-binder",
  "sea-schema-derive",
+ "sqlx",
 ]
 
 [[package]]
@@ -2658,6 +2693,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "sha256"
+version = "1.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f880fc8562bdeb709793f00eb42a2ad0e672c4f883bbe59122b926eca935c8f6"
+dependencies = [
+ "async-trait",
+ "bytes",
+ "hex",
+ "sha2",
+ "tokio",
+]
+
+[[package]]
 name = "sharded-slab"
 version = "0.1.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2696,6 +2744,18 @@ name = "simdutf8"
 version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e3a9fe34e3e7a50316060351f37187a3f546bce95496156754b601a5fa71b76e"
+
+[[package]]
+name = "simple_asn1"
+version = "0.6.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "297f631f50729c8c99b84667867963997ec0b50f32b2a7dbcab828ef0541e8bb"
+dependencies = [
+ "num-bigint",
+ "num-traits",
+ "thiserror",
+ "time",
+]
 
 [[package]]
 name = "slab"

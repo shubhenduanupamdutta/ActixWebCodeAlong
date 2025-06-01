@@ -17,6 +17,9 @@ sea-orm = { workspace = true, features = [
 ] }
 serde = { workspace = true }
 serde_json = { workspace = true }
+sha256 = { workspace = true }
+chrono = {workspace = true}
+jsonwebtoken = {workspace = true}
 
 [workspace]
 resolver = "3"
@@ -26,7 +29,7 @@ members = [".", "entity", "migration"]
 actix-web = "4.11.0"
 dotenv = "0.15.0"
 env_logger = "0.11.8"
-sea-orm = { version = "1.1.11", features = [
+sea-orm = { version = "1.1.12", features = [
     "sqlx-postgres",
     "runtime-tokio-rustls",
     "macros",
@@ -34,10 +37,13 @@ sea-orm = { version = "1.1.11", features = [
 serde = { version = "1.0.219", features = ["derive"] }
 serde_json = "1.0.140"
 async-std = { version = "1", features = ["attributes", "tokio1"] }
-sea-orm-migration = { version = "1.1.11", features = [
+sea-orm-migration = { version = "1.1.12", features = [
     "runtime-tokio-rustls",
     "sqlx-postgres",
 ] }
+sha256 = "1.6.0"
+chrono = "0.4.41"
+jsonwebtoken = "9.3.1"
 
 
 [workspace.lints.clippy]
