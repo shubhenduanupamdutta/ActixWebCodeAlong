@@ -9,7 +9,7 @@ pub async fn greet(name: web::Path<String>) -> impl Responder {
 }
 
 #[get("/test")]
-pub async fn test(app_state: web::Data<AppState>) -> impl Responder {
+pub async fn test(app_state: web::Data<AppState>) -> Result<ApiResponse, ApiResponse> {
     let _res = app_state
         .db
         .query_all(Statement::from_string(
@@ -17,6 +17,7 @@ pub async fn test(app_state: web::Data<AppState>) -> impl Responder {
             "select * from user;",
         ))
         .await
-        .unwrap();
-    ApiResponse::new(200, "Test Call".to_string())
+        .map_err(|err| ApiResponse::new(500, err.to_string()))?;
+
+    Ok(ApiResponse::new(200, "Test Call".to_string()))
 }
