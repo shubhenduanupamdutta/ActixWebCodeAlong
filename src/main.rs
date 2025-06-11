@@ -2,14 +2,11 @@ use actix_web::{App, HttpServer, middleware::Logger, web};
 use migration::{Migrator, MigratorTrait};
 use sea_orm::{Database, DatabaseConnection};
 use utils::app_state::AppState;
+mod error;
 mod routes;
 mod utils;
 
-#[allow(dead_code)]
-#[derive(Debug)]
-struct MainError {
-    message: String,
-}
+use error::MainError;
 
 #[actix_web::main] // or #[tokio::main]
 async fn main() -> Result<(), MainError> {
