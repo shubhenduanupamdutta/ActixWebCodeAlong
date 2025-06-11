@@ -7,7 +7,11 @@ use argon2::{
     password_hash::{PasswordHash, PasswordHasher, PasswordVerifier, SaltString, rand_core::OsRng},
 };
 
-use crate::utils::{api_response, app_state, jwt::encode_jwt};
+use crate::utils::{
+    api_response::{self, ApiResponse},
+    app_state,
+    jwt::encode_jwt,
+};
 
 #[derive(Serialize, Deserialize)]
 struct RegisterModel {
@@ -26,7 +30,7 @@ struct LoginModel {
 pub async fn register(
     app_state: web::Data<app_state::AppState>,
     register_json: web::Json<RegisterModel>,
-) -> impl Responder {
+) -> Result<ApiResponse, ApiResponse> {
     let user_model = entity::user::ActiveModel {
         name: Set(register_json.name.clone()),
         email: Set(register_json.email.clone()),
@@ -35,12 +39,12 @@ pub async fn register(
     }
     .insert(&app_state.db)
     .await
-    .unwrap();
+    .map_err(|err| ApiResponse::new(500, err.to_string()))?;
 
-    api_response::ApiResponse::new(
+    Ok(api_response::ApiResponse::new(
         201,
         format!("User is registered with id: {}", user_model.id),
-    )
+    ))
 }
 
 #[post("/login")]
