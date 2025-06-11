@@ -41,7 +41,7 @@ pub async fn register(
     .await
     .map_err(|err| ApiResponse::new(500, err.to_string()))?;
 
-    Ok(api_response::ApiResponse::new(
+    Ok(ApiResponse::new(
         201,
         format!("User is registered with id: {}", user_model.id),
     ))
@@ -51,26 +51,24 @@ pub async fn register(
 pub async fn login(
     app_state: web::Data<app_state::AppState>,
     login_json: web::Json<LoginModel>,
-) -> impl Responder {
+) -> Result<ApiResponse, ApiResponse> {
     let user = entity::user::Entity::find()
         .filter(entity::user::Column::Email.eq(&login_json.email))
         .one(&app_state.db)
         .await
-        .unwrap();
-
-    if user.is_none() {
-        return api_response::ApiResponse::new(401, "User not found".to_string());
-    }
-
-    let user = user.unwrap();
+        .map_err(|err| ApiResponse::new(500, err.to_string()))?
+        .ok_or(ApiResponse::new(404, "User not found".to_string()))?;
 
     if !verify_hash(login_json.password.clone(), &user.password) {
-        return api_response::ApiResponse::new(401, "Unauthorized. Wrong Password.".to_string());
+        return Ok(ApiResponse::new(
+            401,
+            "Unauthorized. Wrong Password.".to_string(),
+        ));
     }
 
     let jwt = encode_jwt(user.email, user.id).unwrap();
 
-    api_response::ApiResponse::new(200, format!("{{ 'token': '{}'}}", jwt))
+    Ok(ApiResponse::new(200, format!("{{ 'token': '{}'}}", jwt)))
 }
 
 /// Securely hash the text using Argon2 default methods and return the PHC String of the new hash

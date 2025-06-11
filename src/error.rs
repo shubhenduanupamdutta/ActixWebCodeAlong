@@ -1,5 +1,5 @@
-use std::fmt::Display;
 use std::error::Error;
+use std::fmt::Display;
 
 #[allow(dead_code)]
 #[derive(Debug)]
