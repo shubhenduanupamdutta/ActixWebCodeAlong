@@ -107,7 +107,7 @@ pub async fn get_all_posts(
     Ok(ApiResponse::new(200, res_str))
 }
 
-#[get("post/{post_uuid}")]
+#[get("{post_uuid}")]
 pub async fn get_one_post(
     app_state: web::Data<app_state::AppState>,
     post_uuid: web::Path<Uuid>,
