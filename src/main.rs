@@ -1,12 +1,11 @@
 use actix_web::{App, HttpServer, middleware::Logger, web};
+use actix_youtube::utils::app_state::AppState;
 use migration::{Migrator, MigratorTrait};
 use sea_orm::{Database, DatabaseConnection};
-use utils::app_state::AppState;
-mod error;
-mod routes;
-mod utils;
 
-use error::MainError;
+use actix_youtube::error::MainError;
+use actix_youtube::routes;
+use actix_youtube::utils;
 
 #[actix_web::main] // or #[tokio::main]
 async fn main() -> Result<(), MainError> {
