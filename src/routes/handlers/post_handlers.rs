@@ -80,3 +80,56 @@ pub async fn get_my_posts(
         serde_json::to_string(&posts).map_err(|err| ApiResponse::new(500, err.to_string()))?;
     Ok(ApiResponse::new(200, res_str))
 }
+
+#[get("all-posts")]
+pub async fn get_all_posts(
+    app_state: web::Data<app_state::AppState>,
+) -> Result<ApiResponse, ApiResponse> {
+    let posts: Vec<PostModel> = entity::post::Entity::find()
+        .all(&app_state.db)
+        .await
+        .map_err(|err| ApiResponse::new(500, err.to_string()))?
+        .into_iter()
+        .map(|post| PostModel {
+            id: post.id,
+            title: post.title,
+            text: post.text,
+            uuid: post.uuid,
+            image: post.image,
+            user_id: post.user_id,
+            created_at: post.created_at,
+            updated_at: post.updated_at,
+        })
+        .collect();
+
+    let res_str =
+        serde_json::to_string(&posts).map_err(|err| ApiResponse::new(500, err.to_string()))?;
+    Ok(ApiResponse::new(200, res_str))
+}
+
+#[get("post/{post_uuid}")]
+pub async fn get_one_post(
+    app_state: web::Data<app_state::AppState>,
+    post_uuid: web::Path<Uuid>,
+) -> Result<ApiResponse, ApiResponse> {
+    let posts: PostModel = entity::post::Entity::find()
+        .filter(entity::post::Column::Uuid.eq(post_uuid.clone()))
+        .one(&app_state.db)
+        .await
+        .map_err(|err| ApiResponse::new(500, err.to_string()))?
+        .map(|post| PostModel {
+            id: post.id,
+            title: post.title,
+            text: post.text,
+            uuid: post.uuid,
+            image: post.image,
+            user_id: post.user_id,
+            created_at: post.created_at,
+            updated_at: post.updated_at,
+        })
+        .ok_or(ApiResponse::new(404, "No post found".to_string()))?;
+
+    let res_str =
+        serde_json::to_string(&posts).map_err(|err| ApiResponse::new(500, err.to_string()))?;
+    Ok(ApiResponse::new(200, res_str))
+}

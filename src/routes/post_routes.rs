@@ -11,5 +11,9 @@ pub fn config(config: &mut web::ServiceConfig) {
                 .service(post_handlers::create_post)
                 .service(post_handlers::get_my_posts),
         )
-        .service(web::scope("/post")); // Unsecure Post Apis
+        .service(
+            web::scope("/post")
+                .service(post_handlers::get_all_posts)
+                .service(post_handlers::get_one_post),
+        ); // Unsecure Post Apis
 }
