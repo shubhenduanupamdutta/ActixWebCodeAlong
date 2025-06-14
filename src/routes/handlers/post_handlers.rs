@@ -1,11 +1,18 @@
-use actix_multipart::form::{tempfile::TempFile, text::Text, MultipartForm};
-use actix_web::{get, post, web::{self, post}};
+use std::path::PathBuf;
+
+use actix_multipart::form::{MultipartForm, tempfile::TempFile, text::Text};
+use actix_web::{get, post, web};
 use chrono::{DateTime, FixedOffset, Utc};
-use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, Set};
+use entity::post;
+use sea_orm::{
+    ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, Set, TransactionTrait, TryIntoModel,
+};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::utils::{api_response::ApiResponse, app_state, jwt::Claims};
+use crate::utils::{
+    api_response::ApiResponse, app_state, constants::get_max_file_size, jwt::Claims,
+};
 
 #[derive(Debug, MultipartForm)]
 struct CreatePostModel {
@@ -39,15 +46,38 @@ pub async fn create_post(
     claim: Claims,
     post_model: MultipartForm<CreatePostModel>,
 ) -> Result<ApiResponse, ApiResponse> {
+    let check_name = post_model
+        .file
+        .file_name
+        .clone()
+        .unwrap_or("null".to_owned());
+    let max_file_size = get_max_file_size() as usize;
 
-    let check_name = post_model.file.file_name.clone().unwrap_or("null".to_owned());
-
-    match &check_name[check_name.len() -4..] {
+    match &check_name[check_name.len() - 4..] {
         ".png" | ".jpg" => (),
-        _ => return Err(ApiResponse::new(401, "Bad Request, Invalid File Name".to_string())) 
+        _ => {
+            return Err(ApiResponse::new(
+                400,
+                "Bad Request, Invalid File Name".to_string(),
+            ));
+        }
     }
 
-    let post_entity = entity::post::ActiveModel {
+    match post_model.file.size {
+        0 => return Err(ApiResponse::new(400, "Invalid File Type".to_string())),
+        length if length > max_file_size => {
+            return Err(ApiResponse::new(400, "File too big".to_string()));
+        }
+        _ => (),
+    }
+
+    let txn = app_state
+        .db
+        .begin()
+        .await
+        .map_err(|err| ApiResponse::new(500, err.to_string()))?;
+
+    let mut post_entity: post::ActiveModel = post::ActiveModel {
         title: Set(post_model.title.clone()),
         text: Set(post_model.text.clone()),
         uuid: Set(Uuid::new_v4()),
@@ -56,18 +86,75 @@ pub async fn create_post(
         ..Default::default()
     };
 
-    let model = post_entity
-        .insert(&app_state.db)
+    let tmp_file_path = post_model.file.file.path();
+    let file_name = check_name.as_str();
+
+    let time_stamp: i64 = Utc::now().timestamp();
+    let mut file_path = PathBuf::from("./public");
+    let new_file_name = format!("{}-{}", time_stamp, file_name);
+    file_path.push(new_file_name.clone());
+
+    let updated_post;
+    match std::fs::copy(tmp_file_path, file_path) {
+        Ok(_) => {
+            std::fs::remove_file(tmp_file_path).unwrap_or_default();
+            post_entity.image = Set(Some(new_file_name.clone()));
+            updated_post = post_entity
+                .save(&txn)
+                .await
+                .map_err(|err| ApiResponse::new(500, err.to_string()))?;
+
+            txn.commit()
+                .await
+                .map_err(|err| ApiResponse::new(500, err.to_string()))?;
+        }
+        Err(e) => {
+            std::fs::remove_file(tmp_file_path).unwrap_or_default();
+            txn.rollback()
+                .await
+                .map_err(|err| ApiResponse::new(500, format!("Errors: {} and {}", e, err)))?;
+            return Err(ApiResponse::new(
+                500,
+                format!("Internal server error. Details: {}", e),
+            ));
+        }
+    };
+
+    let new_post = updated_post.try_into_model().map_err(|err| {
+        ApiResponse::new(
+            201,
+            format!(
+                "Post created, but unable to return details. Error details: {}",
+                err.to_string()
+            ),
+        )
+    })?;
+
+    let user = entity::user::Entity::find_by_id(claim.id)
+        .one(&app_state.db)
         .await
+        .map_err(|err| ApiResponse::new(500, err.to_string()))?
+        .ok_or(ApiResponse::new(404, "User Not found.".to_string()))?;
+
+    let post_details = PostModel {
+        id: new_post.id,
+        title: new_post.title,
+        text: new_post.text,
+        uuid: new_post.uuid,
+        image: new_post.image,
+        user_id: new_post.user_id,
+        created_at: new_post.created_at,
+        updated_at: new_post.updated_at,
+        user: Some(UserModel {
+            name: user.name,
+            email: user.email,
+        }),
+    };
+
+    let res_str = serde_json::to_string(&post_details)
         .map_err(|err| ApiResponse::new(500, err.to_string()))?;
 
-    Ok(ApiResponse::new(
-        201,
-        format!(
-            "{{ 'message': 'Post created', 'id': '{}', 'title': '{}' }}",
-            model.id, model.text
-        ),
-    ))
+    Ok(ApiResponse::new(201, res_str))
 }
 
 #[get("my-posts")]

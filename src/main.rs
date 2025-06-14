@@ -18,7 +18,7 @@ async fn main() -> Result<(), MainError> {
 
     // Getting address and port from env file using OnceLock
     let address = utils::constants::get_address().clone();
-    let port = *utils::constants::get_port();
+    let port = utils::constants::get_port();
     let db_url = utils::constants::db_url().clone();
     // Database Connection
     let db: DatabaseConnection = Database::connect(db_url).await.map_err(|err| MainError {
