@@ -1,4 +1,5 @@
 use actix_web::{post, web};
+use entity::user;
 use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, Set};
 use serde::{Deserialize, Serialize};
 
@@ -25,6 +26,29 @@ struct LoginModel {
     password: String,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+struct UserOut {
+    id: i32,
+    name: String,
+    email: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct TokenResponse {
+    access_token: String,
+    token_type: String,
+}
+
+impl From<user::Model> for UserOut {
+    fn from(value: user::Model) -> Self {
+        UserOut {
+            id: value.id,
+            name: value.name,
+            email: value.email,
+        }
+    }
+}
+
 #[post("/register")]
 pub async fn register(
     app_state: web::Data<app_state::AppState>,
@@ -43,10 +67,7 @@ pub async fn register(
     .await
     .map_err(|err| ApiResponse::new(500, err.to_string()))?;
 
-    Ok(ApiResponse::new(
-        201,
-        format!("User is registered with id: {}", user_model.id),
-    ))
+    ApiResponse::serialize(201, &UserOut::from(user_model))
 }
 
 #[post("/login")]
@@ -67,7 +88,13 @@ pub async fn login(
     let jwt =
         encode_jwt(user.email, user.id).map_err(|err| ApiResponse::new(500, err.to_string()))?;
 
-    Ok(ApiResponse::new(200, format!("{{ 'token': '{}'}}", jwt)))
+    ApiResponse::serialize(
+        200,
+        &TokenResponse {
+            access_token: jwt,
+            token_type: "bearer".to_string(),
+        },
+    )
 }
 
 /// Securely hash the text using Argon2 default methods and return the PHC String of the new hash

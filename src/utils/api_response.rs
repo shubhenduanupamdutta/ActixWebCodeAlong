@@ -24,16 +24,26 @@ impl ApiResponse {
         ApiResponse {
             status_code,
             body,
-            response_code: StatusCode::from_u16(status_code).unwrap(),
+            response_code: StatusCode::from_u16(status_code).unwrap_or_default(),
         }
     }
 
     pub fn json(status_code: u16, body: String) -> Self {
         ApiResponse {
-            status_code: status_code,
+            status_code,
             body: json!({"message": body}).to_string(),
-            response_code: StatusCode::from_u16(status_code).unwrap(),
+            response_code: StatusCode::from_u16(status_code).unwrap_or_default(),
         }
+    }
+
+    pub fn serialize<T: serde::Serialize>(status_code: u16, data: &T) -> Result<Self, Self> {
+        let body =
+            serde_json::to_string(data).map_err(|err| ApiResponse::new(500, err.to_string()))?;
+        Ok(ApiResponse {
+            status_code,
+            body,
+            response_code: StatusCode::from_u16(status_code).unwrap_or_default(),
+        })
     }
 }
 

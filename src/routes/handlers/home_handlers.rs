@@ -21,6 +21,6 @@ pub async fn test(app_state: web::Data<AppState>) -> Result<ApiResponse, ApiResp
         ))
         .await
         .map_err(|err| ApiResponse::new(500, err.to_string()))?;
-    
+
     Ok(ApiResponse::json(200, "Test Call".to_string()))
 }
