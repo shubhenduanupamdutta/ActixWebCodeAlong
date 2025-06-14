@@ -113,7 +113,7 @@ pub async fn get_one_post(
     post_uuid: web::Path<Uuid>,
 ) -> Result<ApiResponse, ApiResponse> {
     let posts: PostModel = entity::post::Entity::find()
-        .filter(entity::post::Column::Uuid.eq(post_uuid.clone()))
+        .filter(entity::post::Column::Uuid.eq(*post_uuid))
         .one(&app_state.db)
         .await
         .map_err(|err| ApiResponse::new(500, err.to_string()))?
