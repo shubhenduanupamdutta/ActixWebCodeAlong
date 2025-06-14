@@ -2,7 +2,12 @@
 
 use std::fmt::Display;
 
-use actix_web::{HttpResponse, Responder, ResponseError, body::BoxBody, http::StatusCode, web};
+use actix_web::{
+    HttpResponse, Responder, ResponseError,
+    body::BoxBody,
+    http::{StatusCode, header::ContentType},
+    web,
+};
 
 #[derive(Debug)]
 pub struct ApiResponse {
@@ -37,7 +42,10 @@ impl Responder for ApiResponse {
 
     fn respond_to(self, req: &actix_web::HttpRequest) -> actix_web::HttpResponse<Self::Body> {
         let body = BoxBody::new(web::BytesMut::from(self.body.as_bytes()));
-        HttpResponse::new(self.response_code).set_body(body)
+        // HttpResponse::new(self.response_code).set_body(body)
+        HttpResponse::build(self.response_code)
+            .insert_header(ContentType::json())
+            .body(body)
     }
 }
 
@@ -48,6 +56,8 @@ impl ResponseError for ApiResponse {
 
     fn error_response(&self) -> HttpResponse<BoxBody> {
         let body = BoxBody::new(web::BytesMut::from(self.body.as_bytes()));
-        HttpResponse::new(self.status_code()).set_body(body)
+        HttpResponse::build(self.response_code)
+            .insert_header(ContentType::json())
+            .body(body)
     }
 }
