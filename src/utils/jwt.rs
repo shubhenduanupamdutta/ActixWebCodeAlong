@@ -1,3 +1,6 @@
+use std::future;
+
+use actix_web::{FromRequest, HttpMessage};
 use chrono::{Duration, Utc};
 use jsonwebtoken::{DecodingKey, EncodingKey, Header, TokenData, Validation, decode, encode};
 use serde::{Deserialize, Serialize};
@@ -5,7 +8,7 @@ use serde::{Deserialize, Serialize};
 use super::constants;
 
 /// Details in JSON Web Token
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Claims {
     /// Expiration time as UTC timestamp
     pub exp: usize,
@@ -15,6 +18,25 @@ pub struct Claims {
     pub email: String,
     /// Id of the user
     pub id: i32,
+}
+
+#[allow(unused_variables)]
+impl FromRequest for Claims {
+    type Error = actix_web::Error;
+
+    type Future = future::Ready<Result<Self, Self::Error>>;
+
+    fn from_request(
+        req: &actix_web::HttpRequest,
+        payload: &mut actix_web::dev::Payload,
+    ) -> Self::Future {
+        match req.extensions().get::<Claims>() {
+            Some(claim) => future::ready(Ok(claim.clone())),
+            None => future::ready(Err(actix_web::error::ErrorForbidden(
+                "Wrong Authentication Token.",
+            ))),
+        }
+    }
 }
 
 /// Encode provided email and id with necessary details and return a JWT.
