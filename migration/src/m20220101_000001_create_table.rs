@@ -18,7 +18,7 @@ impl MigrationTrait for Migration {
                     .col(pk_auto(Post::Id))
                     .col(string(Post::Title))
                     .col(string(Post::Text))
-                    .col(uuid(Post::Uuid))
+                    .col(uuid_uniq(Post::Uuid))
                     .col(string_null(Post::Image))
                     .col(integer(Post::UserId))
                     .col(timestamp_with_time_zone(Post::CreatedAt))
