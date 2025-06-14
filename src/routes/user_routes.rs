@@ -6,6 +6,7 @@ pub fn config(config: &mut web::ServiceConfig) {
     config.service(
         web::scope("/user")
             .wrap(from_fn(middleware::auth_middleware::check_auth_middleware))
-            .service(user_handlers::user),
+            .service(user_handlers::user)
+            .service(user_handlers::update_user),
     );
 }
