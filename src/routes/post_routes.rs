@@ -6,7 +6,7 @@ pub fn config(config: &mut web::ServiceConfig) {
     config
         .service(
             // Secure Posts
-            web::scope("/post")
+            web::scope("/secure/post")
                 .wrap(from_fn(middleware::auth_middleware::check_auth_middleware))
                 .service(post_handlers::create_post)
                 .service(post_handlers::get_my_posts),
