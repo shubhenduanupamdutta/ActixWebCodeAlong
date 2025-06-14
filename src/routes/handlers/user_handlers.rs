@@ -1,9 +1,27 @@
 use actix_web::{Responder, get, web};
+use sea_orm::EntityTrait;
 
-use crate::utils::{api_response, app_state};
+use crate::{
+    error::MainError,
+    utils::{api_response::ApiResponse, app_state, jwt::Claims},
+};
 
-#[allow(unused_variables)]
 #[get("")]
-pub async fn user(app_state: web::Data<app_state::AppState>) -> impl Responder {
-    api_response::ApiResponse::new(200, "Verified User".to_string())
+pub async fn user(
+    app_state: web::Data<app_state::AppState>,
+    claim_data: Claims,
+) -> Result<ApiResponse, ApiResponse> {
+    let user_model = entity::user::Entity::find_by_id(claim_data.id)
+        .one(&app_state.db)
+        .await
+        .map_err(|e| ApiResponse::new(500, e.to_string()))?
+        .ok_or(ApiResponse::new(401, String::from("User not found.")))?;
+
+    Ok(ApiResponse::new(
+        200,
+        format!(
+            "Verified User, {{ 'name': {}, 'email': {} }}",
+            user_model.name, user_model.email
+        ),
+    ))
 }
