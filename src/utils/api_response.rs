@@ -9,6 +9,8 @@ use actix_web::{
     web,
 };
 
+use crate::error::MainError;
+
 #[derive(Debug)]
 pub struct ApiResponse {
     pub status_code: u16,
@@ -42,7 +44,6 @@ impl Responder for ApiResponse {
 
     fn respond_to(self, req: &actix_web::HttpRequest) -> actix_web::HttpResponse<Self::Body> {
         let body = BoxBody::new(web::BytesMut::from(self.body.as_bytes()));
-        // HttpResponse::new(self.response_code).set_body(body)
         HttpResponse::build(self.response_code)
             .insert_header(ContentType::json())
             .body(body)
@@ -55,7 +56,11 @@ impl ResponseError for ApiResponse {
     }
 
     fn error_response(&self) -> HttpResponse<BoxBody> {
-        let body = BoxBody::new(web::BytesMut::from(self.body.as_bytes()));
+        let json_body = serde_json::to_string(&MainError {
+            message: self.body.clone(),
+        })
+        .unwrap_or_else(|_| r#"{"error": "Error converting to json"}"#.to_string());
+        let body = BoxBody::new(web::BytesMut::from(json_body.as_bytes()));
         HttpResponse::build(self.response_code)
             .insert_header(ContentType::json())
             .body(body)

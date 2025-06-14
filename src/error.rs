@@ -1,8 +1,10 @@
 use std::error::Error;
 use std::fmt::Display;
 
+use serde::{Deserialize, Serialize};
+
 #[allow(dead_code)]
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct MainError {
     pub message: String,
 }
