@@ -21,6 +21,8 @@ impl MigrationTrait for Migration {
                     .col(uuid(Post::Uuid))
                     .col(string_null(Post::Image))
                     .col(integer(Post::UserId))
+                    .col(timestamp_with_time_zone(Post::CreatedAt))
+                    .col(timestamp_with_time_zone_null(Post::UpdatedAt))
                     .foreign_key(
                         ForeignKey::create()
                             .name("fk-posts-users-id")
@@ -50,4 +52,6 @@ enum Post {
     Uuid,
     Image,
     UserId,
+    CreatedAt,
+    UpdatedAt,
 }
