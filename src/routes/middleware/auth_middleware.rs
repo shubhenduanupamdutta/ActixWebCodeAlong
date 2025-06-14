@@ -1,5 +1,9 @@
 use actix_web::{
-    body::MessageBody, dev::{ServiceRequest, ServiceResponse}, http::header, middleware::Next, Error, HttpMessage
+    Error, HttpMessage,
+    body::MessageBody,
+    dev::{ServiceRequest, ServiceResponse},
+    http::header,
+    middleware::Next,
 };
 use jsonwebtoken::TokenData;
 

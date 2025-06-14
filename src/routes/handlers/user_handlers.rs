@@ -1,10 +1,7 @@
-use actix_web::{Responder, get, web};
+use actix_web::{get, web};
 use sea_orm::EntityTrait;
 
-use crate::{
-    error::MainError,
-    utils::{api_response::ApiResponse, app_state, jwt::Claims},
-};
+use crate::utils::{api_response::ApiResponse, app_state, jwt::Claims};
 
 #[get("")]
 pub async fn user(
