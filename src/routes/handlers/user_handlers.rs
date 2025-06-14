@@ -23,7 +23,7 @@ pub async fn user(
     Ok(ApiResponse::new(
         200,
         format!(
-            "Verified User, {{ 'name': {}, 'email': {} }}",
+            "{{ 'message': 'Verified User', 'name': '{}', 'email': '{}' }}",
             user_model.name, user_model.email
         ),
     ))
@@ -51,7 +51,7 @@ pub async fn update_user(
     Ok(ApiResponse::new(
         200,
         format!(
-            "User Updated. {{ 'name': {}, 'email': {} }}",
+            "{{ 'message': 'User Updated', 'name': '{}', 'email': '{}' }}",
             user_model.name, user_model.email
         ),
     ))
