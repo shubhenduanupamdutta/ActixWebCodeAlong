@@ -1,13 +1,10 @@
 use actix_web::{get, put, web};
 use sea_orm::{ActiveModelTrait, ActiveValue::Set, EntityTrait, IntoActiveModel};
-use serde::{Deserialize, Serialize};
 
-use crate::utils::{api_response::ApiResponse, app_state, jwt::Claims};
-
-#[derive(Debug, Serialize, Deserialize)]
-struct UpdateUserModel {
-    name: String,
-}
+use crate::{
+    schemas::user_schemas::{UserOut, UserUpdate},
+    utils::{api_response::ApiResponse, app_state, jwt::Claims},
+};
 
 #[get("")]
 pub async fn user(
@@ -20,19 +17,13 @@ pub async fn user(
         .map_err(|e| ApiResponse::new(500, e.to_string()))?
         .ok_or(ApiResponse::new(404, String::from("User not found.")))?;
 
-    Ok(ApiResponse::new(
-        200,
-        format!(
-            "{{ 'message': 'Verified User', 'name': '{}', 'email': '{}' }}",
-            user_model.name, user_model.email
-        ),
-    ))
+    ApiResponse::serialize(200, &UserOut::from(user_model))
 }
 
 #[put("update")]
 pub async fn update_user(
     app_state: web::Data<app_state::AppState>,
-    user_data: web::Json<UpdateUserModel>,
+    user_data: web::Json<UserUpdate>,
     claim: Claims,
 ) -> Result<ApiResponse, ApiResponse> {
     let mut user_model = entity::user::Entity::find_by_id(claim.id)
@@ -48,11 +39,5 @@ pub async fn update_user(
         .await
         .map_err(|err| ApiResponse::new(500, err.to_string()))?;
 
-    Ok(ApiResponse::new(
-        200,
-        format!(
-            "{{ 'message': 'User Updated', 'name': '{}', 'email': '{}' }}",
-            user_model.name, user_model.email
-        ),
-    ))
+    ApiResponse::serialize(200, &UserOut::from(user_model))
 }

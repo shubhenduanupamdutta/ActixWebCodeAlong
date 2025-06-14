@@ -1,7 +1,5 @@
 use actix_web::{post, web};
-use entity::user;
 use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, Set};
-use serde::{Deserialize, Serialize};
 
 use argon2::{
     Argon2,
@@ -10,49 +8,17 @@ use argon2::{
 
 use crate::{
     error::MainError,
+    schemas::{
+        token_schema::TokenResponse,
+        user_schemas::{LoginUser, User, UserOut},
+    },
     utils::{api_response::ApiResponse, app_state, jwt::encode_jwt},
 };
-
-#[derive(Serialize, Deserialize)]
-struct RegisterModel {
-    name: String,
-    email: String,
-    password: String,
-}
-
-#[derive(Serialize, Deserialize)]
-struct LoginModel {
-    email: String,
-    password: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-struct UserOut {
-    id: i32,
-    name: String,
-    email: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-struct TokenResponse {
-    access_token: String,
-    token_type: String,
-}
-
-impl From<user::Model> for UserOut {
-    fn from(value: user::Model) -> Self {
-        UserOut {
-            id: value.id,
-            name: value.name,
-            email: value.email,
-        }
-    }
-}
 
 #[post("/register")]
 pub async fn register(
     app_state: web::Data<app_state::AppState>,
-    register_json: web::Json<RegisterModel>,
+    register_json: web::Json<User>,
 ) -> Result<ApiResponse, ApiResponse> {
     let hash = secure_hash(register_json.password.clone())
         .map_err(|err| ApiResponse::new(500, format!("Hashing Failed. Details: {}", err)))?;
@@ -73,7 +39,7 @@ pub async fn register(
 #[post("/login")]
 pub async fn login(
     app_state: web::Data<app_state::AppState>,
-    login_json: web::Json<LoginModel>,
+    login_json: web::Json<LoginUser>,
 ) -> Result<ApiResponse, ApiResponse> {
     let user = entity::user::Entity::find()
         .filter(entity::user::Column::Email.eq(&login_json.email))
