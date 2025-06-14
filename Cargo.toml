@@ -21,6 +21,8 @@ chrono = { workspace = true }
 jsonwebtoken.workspace = true
 argon2 = { workspace = true }
 uuid = { workspace = true, features = ["v4"] }
+actix-multipart = { workspace = true }
+sanitize-filename = { workspace = true }
 
 [workspace]
 resolver = "3"
@@ -46,6 +48,8 @@ chrono = "0.4.41"
 jsonwebtoken = "9.3.1"
 argon2 = "0.5.3"
 uuid = { version = "1.17.0", features = ["v4"] }
+actix-multipart = "0.7.2"
+sanitize-filename = "0.6.0"
 
 [workspace.lints.clippy]
 all = "deny"
