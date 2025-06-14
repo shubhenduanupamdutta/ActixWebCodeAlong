@@ -1,9 +1,5 @@
 use actix_web::{
-    Error,
-    body::MessageBody,
-    dev::{ServiceRequest, ServiceResponse},
-    http::header,
-    middleware::Next,
+    body::MessageBody, dev::{ServiceRequest, ServiceResponse}, http::header, middleware::Next, Error, HttpMessage
 };
 use jsonwebtoken::TokenData;
 
@@ -31,7 +27,8 @@ pub async fn check_auth_middleware(
         .unwrap()
         .replace("Bearer ", "")
         .to_owned();
-    let _claim: TokenData<Claims> = decode_jwt(token).unwrap();
+    let claim: TokenData<Claims> = decode_jwt(token).unwrap();
+    req.extensions_mut().insert(claim.claims);
 
     next.call(req)
         .await
