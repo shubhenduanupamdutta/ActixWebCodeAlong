@@ -22,6 +22,13 @@ struct PostModel {
     pub user_id: i32,
     pub created_at: DateTime<FixedOffset>,
     pub updated_at: Option<DateTime<FixedOffset>>,
+    pub user: Option<UserModel>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct UserModel {
+    name: String,
+    email: String,
 }
 
 #[post("create")]
@@ -73,6 +80,7 @@ pub async fn get_my_posts(
             user_id: post.user_id,
             created_at: post.created_at,
             updated_at: post.updated_at,
+            user: None,
         })
         .collect();
 
@@ -99,6 +107,7 @@ pub async fn get_all_posts(
             user_id: post.user_id,
             created_at: post.created_at,
             updated_at: post.updated_at,
+            user: None,
         })
         .collect();
 
@@ -114,18 +123,23 @@ pub async fn get_one_post(
 ) -> Result<ApiResponse, ApiResponse> {
     let posts: PostModel = entity::post::Entity::find()
         .filter(entity::post::Column::Uuid.eq(*post_uuid))
+        .find_also_related(entity::user::Entity)
         .one(&app_state.db)
         .await
         .map_err(|err| ApiResponse::new(500, err.to_string()))?
         .map(|post| PostModel {
-            id: post.id,
-            title: post.title,
-            text: post.text,
-            uuid: post.uuid,
-            image: post.image,
-            user_id: post.user_id,
-            created_at: post.created_at,
-            updated_at: post.updated_at,
+            id: post.0.id,
+            title: post.0.title,
+            text: post.0.text,
+            uuid: post.0.uuid,
+            image: post.0.image,
+            user_id: post.0.user_id,
+            created_at: post.0.created_at,
+            updated_at: post.0.updated_at,
+            user: post.1.map(|model| UserModel {
+                name: model.name,
+                email: model.email,
+            }),
         })
         .ok_or(ApiResponse::new(404, "No post found".to_string()))?;
 
