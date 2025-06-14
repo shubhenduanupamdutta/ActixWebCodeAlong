@@ -1,4 +1,5 @@
-use actix_web::{get, post, web};
+use actix_multipart::form::{tempfile::TempFile, text::Text, MultipartForm};
+use actix_web::{get, post, web::{self, post}};
 use chrono::{DateTime, FixedOffset, Utc};
 use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, Set};
 use serde::{Deserialize, Serialize};
@@ -6,10 +7,11 @@ use uuid::Uuid;
 
 use crate::utils::{api_response::ApiResponse, app_state, jwt::Claims};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, MultipartForm)]
 struct CreatePostModel {
-    title: String,
-    text: String,
+    title: Text<String>,
+    text: Text<String>,
+    file: TempFile,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -35,8 +37,16 @@ struct UserModel {
 pub async fn create_post(
     app_state: web::Data<app_state::AppState>,
     claim: Claims,
-    post_model: web::Json<CreatePostModel>,
+    post_model: MultipartForm<CreatePostModel>,
 ) -> Result<ApiResponse, ApiResponse> {
+
+    let check_name = post_model.file.file_name.clone().unwrap_or("null".to_owned());
+
+    match &check_name[check_name.len() -4..] {
+        ".png" | ".jpg" => (),
+        _ => return Err(ApiResponse::new(401, "Bad Request, Invalid File Name".to_string())) 
+    }
+
     let post_entity = entity::post::ActiveModel {
         title: Set(post_model.title.clone()),
         text: Set(post_model.text.clone()),
