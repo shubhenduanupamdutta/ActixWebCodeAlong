@@ -1,11 +1,14 @@
-use actix_web::{Responder, get, web};
+use actix_web::{
+    Responder, get,
+    web::{self},
+};
 use sea_orm::{ConnectionTrait, Statement};
 
 use crate::utils::{api_response::ApiResponse, app_state::AppState};
 
 #[get("/hello/{name}")]
 pub async fn greet(name: web::Path<String>) -> impl Responder {
-    ApiResponse::new(200, format!("Hello {name}"))
+    ApiResponse::json(200, format!("Hello {name}!"))
 }
 
 #[get("/test")]
@@ -18,6 +21,6 @@ pub async fn test(app_state: web::Data<AppState>) -> Result<ApiResponse, ApiResp
         ))
         .await
         .map_err(|err| ApiResponse::new(500, err.to_string()))?;
-
-    Ok(ApiResponse::new(200, "Test Call".to_string()))
+    
+    Ok(ApiResponse::json(200, "Test Call".to_string()))
 }

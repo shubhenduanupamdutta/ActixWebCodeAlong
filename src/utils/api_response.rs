@@ -8,6 +8,7 @@ use actix_web::{
     http::{StatusCode, header::ContentType},
     web,
 };
+use serde_json::json;
 
 use crate::error::MainError;
 
@@ -23,6 +24,14 @@ impl ApiResponse {
         ApiResponse {
             status_code,
             body,
+            response_code: StatusCode::from_u16(status_code).unwrap(),
+        }
+    }
+
+    pub fn json(status_code: u16, body: String) -> Self {
+        ApiResponse {
+            status_code: status_code,
+            body: json!({"message": body}).to_string(),
             response_code: StatusCode::from_u16(status_code).unwrap(),
         }
     }
