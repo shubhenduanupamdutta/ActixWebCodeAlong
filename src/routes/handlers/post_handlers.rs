@@ -125,7 +125,7 @@ pub async fn create_post(
             201,
             format!(
                 "Post created, but unable to return details. Error details: {}",
-                err.to_string()
+                err
             ),
         )
     })?;
