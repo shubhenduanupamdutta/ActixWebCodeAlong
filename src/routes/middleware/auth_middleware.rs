@@ -26,12 +26,16 @@ pub async fn check_auth_middleware(
     }
 
     let token: String = auth
-        .unwrap()
+        .ok_or(Error::from(ApiResponse::new(
+            400,
+            "Bad Request".to_string(),
+        )))?
         .to_str()
-        .unwrap()
+        .map_err(|err| Error::from(ApiResponse::new(400, err.to_string())))?
         .replace("Bearer ", "")
         .to_owned();
-    let claim: TokenData<Claims> = decode_jwt(token).unwrap();
+    let claim: TokenData<Claims> =
+        decode_jwt(token).map_err(|err| ApiResponse::new(400, err.to_string()))?;
     req.extensions_mut().insert(claim.claims);
 
     next.call(req)
