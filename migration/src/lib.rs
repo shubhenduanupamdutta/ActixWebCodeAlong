@@ -3,6 +3,7 @@ pub use sea_orm_migration::prelude::*;
 mod m20220101_000001_create_table;
 mod m20250525_145126_create_user_table;
 
+#[derive(Debug)]
 pub struct Migrator;
 
 #[async_trait::async_trait]

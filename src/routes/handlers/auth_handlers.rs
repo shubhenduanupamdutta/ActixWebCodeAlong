@@ -2,8 +2,8 @@ use actix_web::{post, web};
 use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, Set};
 
 use argon2::{
+    password_hash::{rand_core::OsRng, PasswordHash, PasswordHasher, PasswordVerifier, SaltString},
     Argon2,
-    password_hash::{PasswordHash, PasswordHasher, PasswordVerifier, SaltString, rand_core::OsRng},
 };
 
 use crate::{
@@ -16,7 +16,7 @@ use crate::{
 };
 
 #[post("/register")]
-pub async fn register(
+pub(crate) async fn register(
     app_state: web::Data<app_state::AppState>,
     register_json: web::Json<User>,
 ) -> Result<ApiResponse, ApiResponse> {
@@ -37,7 +37,7 @@ pub async fn register(
 }
 
 #[post("/login")]
-pub async fn login(
+pub(crate) async fn login(
     app_state: web::Data<app_state::AppState>,
     login_json: web::Json<LoginUser>,
 ) -> Result<ApiResponse, ApiResponse> {

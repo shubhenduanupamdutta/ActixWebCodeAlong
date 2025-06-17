@@ -3,10 +3,9 @@
 use std::fmt::Display;
 
 use actix_web::{
-    HttpResponse, Responder, ResponseError,
     body::BoxBody,
-    http::{StatusCode, header::ContentType},
-    web,
+    http::{header::ContentType, StatusCode},
+    web, HttpResponse, Responder, ResponseError,
 };
 use serde_json::json;
 
@@ -61,7 +60,7 @@ impl Display for ApiResponse {
 impl Responder for ApiResponse {
     type Body = BoxBody;
 
-    fn respond_to(self, req: &actix_web::HttpRequest) -> actix_web::HttpResponse<Self::Body> {
+    fn respond_to(self, req: &actix_web::HttpRequest) -> HttpResponse<Self::Body> {
         let body = BoxBody::new(web::BytesMut::from(self.body.as_bytes()));
         HttpResponse::build(self.response_code)
             .insert_header(ContentType::json())

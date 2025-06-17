@@ -1,6 +1,6 @@
 use sea_orm::DatabaseConnection;
 
-#[allow(dead_code)]
+#[derive(Debug)]
 pub struct AppState {
     pub db: DatabaseConnection,
 }

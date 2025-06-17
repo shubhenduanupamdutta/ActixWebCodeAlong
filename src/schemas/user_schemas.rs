@@ -21,7 +21,7 @@ pub(crate) struct LoginUser {
     pub password: String,
 }
 
-pub type UserOut = UserUpdate;
+pub(crate) type UserOut = UserUpdate;
 
 impl From<user::Model> for UserUpdate {
     fn from(value: user::Model) -> Self {

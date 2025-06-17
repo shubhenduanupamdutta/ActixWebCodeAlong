@@ -1,7 +1,7 @@
 use sea_orm_migration::{prelude::*, schema::*};
 
-#[derive(DeriveMigrationName)]
-pub struct Migration;
+#[derive(DeriveMigrationName, Debug)]
+pub(crate) struct Migration;
 
 #[async_trait::async_trait]
 impl MigrationTrait for Migration {
@@ -29,7 +29,7 @@ impl MigrationTrait for Migration {
 }
 
 #[derive(DeriveIden)]
-pub enum User {
+pub(crate) enum User {
     Table,
     Id,
     Name,

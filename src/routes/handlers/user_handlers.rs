@@ -7,7 +7,7 @@ use crate::{
 };
 
 #[get("")]
-pub async fn user(
+pub(crate) async fn user(
     app_state: web::Data<app_state::AppState>,
     claim_data: Claims,
 ) -> Result<ApiResponse, ApiResponse> {
@@ -21,7 +21,7 @@ pub async fn user(
 }
 
 #[put("update")]
-pub async fn update_user(
+pub(crate) async fn update_user(
     app_state: web::Data<app_state::AppState>,
     user_data: web::Json<UserUpdate>,
     claim: Claims,

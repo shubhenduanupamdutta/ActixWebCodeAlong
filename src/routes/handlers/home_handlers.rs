@@ -1,18 +1,19 @@
 use actix_web::{
-    Responder, get,
+    get,
     web::{self},
+    Responder,
 };
 use sea_orm::{ConnectionTrait, Statement};
 
 use crate::utils::{api_response::ApiResponse, app_state::AppState};
 
 #[get("/hello/{name}")]
-pub async fn greet(name: web::Path<String>) -> impl Responder {
+pub(crate) async fn greet(name: web::Path<String>) -> impl Responder {
     ApiResponse::json(200, format!("Hello {name}!"))
 }
 
 #[get("/test")]
-pub async fn test(app_state: web::Data<AppState>) -> Result<ApiResponse, ApiResponse> {
+pub(crate) async fn test(app_state: web::Data<AppState>) -> Result<ApiResponse, ApiResponse> {
     let _res = app_state
         .db
         .query_all(Statement::from_string(

@@ -1,4 +1,4 @@
-use actix_multipart::form::{MultipartForm, tempfile::TempFile, text::Text};
+use actix_multipart::form::{tempfile::TempFile, text::Text, MultipartForm};
 use chrono::{DateTime, FixedOffset};
 use entity::post;
 use serde::{Deserialize, Serialize};
@@ -7,14 +7,14 @@ use uuid::Uuid;
 use crate::schemas::user_schemas::UserOut;
 
 #[derive(Debug, MultipartForm)]
-pub struct CreatePostModel {
+pub(crate) struct CreatePostModel {
     pub title: Text<String>,
     pub text: Text<String>,
     pub file: Option<TempFile>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct PostOut {
+pub(crate) struct PostOut {
     pub id: i32,
     pub title: String,
     pub text: String,

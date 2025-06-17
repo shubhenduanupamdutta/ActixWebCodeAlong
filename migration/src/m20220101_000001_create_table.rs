@@ -2,8 +2,8 @@ use sea_orm_migration::{prelude::*, schema::*};
 
 use crate::m20250525_145126_create_user_table::User;
 
-#[derive(DeriveMigrationName)]
-pub struct Migration;
+#[derive(DeriveMigrationName, Debug)]
+pub(crate) struct Migration;
 
 #[async_trait::async_trait]
 impl MigrationTrait for Migration {
@@ -44,7 +44,7 @@ impl MigrationTrait for Migration {
 }
 
 #[derive(DeriveIden)]
-enum Post {
+pub(crate) enum Post {
     Table,
     Id,
     Title,

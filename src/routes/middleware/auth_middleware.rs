@@ -1,15 +1,15 @@
 use actix_web::{
-    Error, HttpMessage,
     body::MessageBody,
     dev::{ServiceRequest, ServiceResponse},
     http::header,
     middleware::Next,
+    Error, HttpMessage,
 };
 use jsonwebtoken::TokenData;
 
 use crate::utils::{
-    api_response::{self, ApiResponse},
-    jwt::{Claims, decode_jwt},
+    api_response::ApiResponse,
+    jwt::{decode_jwt, Claims},
 };
 
 pub async fn check_auth_middleware(
@@ -19,7 +19,7 @@ pub async fn check_auth_middleware(
     let auth = req.headers().get(header::AUTHORIZATION);
 
     if auth.is_none() {
-        return Err(Error::from(api_response::ApiResponse::new(
+        return Err(Error::from(ApiResponse::new(
             401,
             "Unauthorized".to_string(),
         )));

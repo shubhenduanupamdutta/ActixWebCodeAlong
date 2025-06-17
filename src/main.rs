@@ -1,4 +1,4 @@
-use actix_web::{App, HttpServer, middleware::Logger, web};
+use actix_web::{middleware::Logger, web, App, HttpServer};
 use actix_youtube::utils::app_state::AppState;
 use migration::{Migrator, MigratorTrait};
 use sea_orm::{Database, DatabaseConnection};
@@ -33,7 +33,9 @@ async fn main() -> Result<(), MainError> {
     // Adding logger middleware using `wrap`
     HttpServer::new(move || {
         App::new()
-            .app_data(web::Data::new(AppState { db: db.clone() }))
+            .app_data(web::Data::new(AppState {
+                db: db.clone(),
+            }))
             .wrap(Logger::default())
             .configure(routes::home_routes::config)
             .configure(routes::auth_routes::config)
