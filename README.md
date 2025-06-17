@@ -27,3 +27,9 @@ If `DATABASE_URL` is defined in .env file. Then you can auto generate entities u
 ```bash
 sea-orm-cli generate entity -o entity/src
 ```
+
+Otherwise
+
+```bash
+sea-orm-cli generate entity -u protocol:://user:password@endpoint_url/database -o entity/src
+```
